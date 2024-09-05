@@ -11,6 +11,7 @@ const meta = require('../meta');
 const plugins = require('../plugins');
 
 module.exports = function (Topics) {
+	console.log('ndevidze');
 	Topics.getSortedTopics = async function (params) {
 		const data = {
 			nextStart: 0,
@@ -139,6 +140,7 @@ module.exports = function (Topics) {
 	}
 
 	async function getCidTids(params) {
+		console.log('getting Tids');
 		if (params.tags.length) {
 			return await getTidsForTagsAndCids(params);
 		}
@@ -172,6 +174,7 @@ module.exports = function (Topics) {
 	}
 
 	async function sortTids(tids, params) {
+		console.log('sorting Tids');
 		if (canSkipSorting(params)) {
 			return tids;
 		}
@@ -246,6 +249,7 @@ module.exports = function (Topics) {
 	}
 
 	async function filterTids(tids, params) {
+		console.log('filtering Tids');
 		tids = await applyFilterByType(tids, params);
 		tids = await privileges.topics.filterTids('topics:read', tids, params.uid);
 		const topicData = await Topics.getTopicsFields(tids, ['uid', 'tid', 'cid', 'tags']);
