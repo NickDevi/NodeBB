@@ -225,7 +225,7 @@ module.exports = function (Topics) {
 
 	function sortCreate(a, b) {
 		return b.timestamp - a.timestamp;
-	}      
+	}
 
 	function sortVotes(a, b) {
 		if (a.votes !== b.votes) {
@@ -256,9 +256,6 @@ module.exports = function (Topics) {
 		]);
 		return filterTopicsByCidsAndTags(filtered, ignoredCids, params);
 	}
-
-
-
 	async function applyFilterByType(tids, params) {
 		switch (params.filter) {
 			case 'new':
@@ -269,7 +266,7 @@ module.exports = function (Topics) {
 				return await Topics.filterNotIgnoredTids(tids, params.uid);
 		}
 	}
-	async function getIgnoredCids(params, topicCids) {    
+	async function getIgnoredCids(params, topicCids) {
 		if (params.cids || params.filter === 'watched' || meta.config.disableRecentCategoryFilter) {
 			return [];
 		}
