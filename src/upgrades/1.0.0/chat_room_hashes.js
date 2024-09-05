@@ -11,46 +11,54 @@ module.exports = {
 			if (err) {
 				return callback(err);
 			}
-			processChatRooms(nextChatRoomId, callback);
+
+			let currentChatRoomId = 1;
+			async.whilst(
+				(next) => { shouldProcessNextRoom(currentChatRoomId, nextChatRoomId, next); },
+				(next) => {
+					processChatRoom(currentChatRoomId, next, () => {
+						currentChatRoomId += 1;
+					});
+				},
+				callback
+			);
 		});
 	},
 };
 
-function processChatRooms(nextChatRoomId, callback) {
-	let currentChatRoomId = 1;
-	
-	async.whilst(
-		() => currentChatRoomId <= nextChatRoomId,
-		(next) => {
-			handleChatRoom(currentChatRoomId, (err) => {
-				if (err) {
-					return next(err);
-				}
-				currentChatRoomId += 1;
-				next();
-			});
-		},
-		callback
-	);
+function shouldProcessNextRoom(currentChatRoomId, nextChatRoomId, next) {
+	next(null, currentChatRoomId <= nextChatRoomId);
 }
 
-function handleChatRoom(chatRoomId, callback) {
-	db.getSortedSetRange(`chat:room:${chatRoomId}:uids`, 0, 0, (err, uids) => {
+function processChatRoom(currentChatRoomId, next, incrementCurrentChatRoom) {
+	getRoomUids(currentChatRoomId, (err, uids) => {
 		if (err) {
-			return callback(err);
+			return next(err);
 		}
-		if (!isValidUid(uids)) {
-			return callback();
+
+		if (!isValidUids(uids)) {
+			incrementCurrentChatRoom();
+			return next();
 		}
-		storeChatRoom(chatRoomId, uids[0], callback);
+
+		setChatRoomOwner(currentChatRoomId, uids[0], (err) => {
+			if (err) {
+				return next(err);
+			}
+			incrementCurrentChatRoom();
+			next();
+		});
 	});
 }
 
-function isValidUid(uids) {
-	return Array.isArray(uids) && uids.length > 0 && uids[0];
+function getRoomUids(currentChatRoomId, callback) {
+	db.getSortedSetRange(`chat:room:${currentChatRoomId}:uids`, 0, 0, callback);
 }
 
-function storeChatRoom(chatRoomId, ownerUid, callback) {
-	const chatRoomData = { owner: ownerUid, roomId: chatRoomId };
-	db.setObject(`chat:room:${chatRoomId}`, chatRoomData, callback);
+function isValidUids(uids) {
+	return Array.isArray(uids) && uids.length && uids[0];
+}
+
+function setChatRoomOwner(roomId, ownerUid, callback) {
+	db.setObject(`chat:room:${roomId}`, { owner: ownerUid, roomId }, callback);
 }
