@@ -17,6 +17,7 @@ module.exports = {
 };
 
 function processChatRooms(currentChatRoomId, nextChatRoomId, callback) {
+	console.log(">>>processChatRooms accessed");
 	async.whilst(
 		next => next(null, currentChatRoomId <= nextChatRoomId),
 		(next) => { // Added parentheses around (next)
@@ -30,6 +31,7 @@ function processChatRooms(currentChatRoomId, nextChatRoomId, callback) {
 }
 
 function processSingleChatRoom(chatRoomId, next) {
+	console.log(">>>processSingleChatRoom accessed");
 	getFirstUserFromChatRoom(chatRoomId, (err, firstUser) => {
 		if (err || !firstUser) {
 			return next(err); // Continue on error or if no user found
@@ -39,6 +41,7 @@ function processSingleChatRoom(chatRoomId, next) {
 }
 
 function getFirstUserFromChatRoom(chatRoomId, callback) {
+	console.log(">>>getFirst accessed");
 	db.getSortedSetRange(`chat:room:${chatRoomId}:uids`, 0, 0, (err, uids) => {
 		if (err) {
 			return callback(err);
@@ -48,5 +51,6 @@ function getFirstUserFromChatRoom(chatRoomId, callback) {
 }
 
 function setChatRoomOwner(chatRoomId, ownerId, callback) {
+	console.log(">>>setChatRoomOwner accessed");
 	db.setObject(`chat:room:${chatRoomId}`, { owner: ownerId, roomId: chatRoomId }, callback);
 }
