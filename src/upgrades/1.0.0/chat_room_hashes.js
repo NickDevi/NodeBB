@@ -18,8 +18,13 @@ module.exports = {
 
 function processChatRooms(currentChatRoomId, nextChatRoomId, callback) {
 	async.whilst(
-		(next) => next(null, currentChatRoomId <= nextChatRoomId),
-		(next) => processSingleChatRoom(currentChatRoomId++, next),
+		next => next(null, currentChatRoomId <= nextChatRoomId),
+		next => {
+			processSingleChatRoom(currentChatRoomId, () => {
+				currentChatRoomId += 1; // Replacing unary operator '++'
+				next();
+			});
+		},
 		callback
 	);
 }
