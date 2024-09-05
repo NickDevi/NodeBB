@@ -7,6 +7,7 @@ module.exports = {
 	name: 'Chat room hashes',
 	timestamp: Date.UTC(2015, 11, 23),
 	method: function (callback) {
+		console.log('Chat room hashes method triggered');
 		console.log('ndevidze');
 		db.getObjectField('global', 'nextChatRoomId', (err, nextChatRoomId) => {
 			if (err) {
